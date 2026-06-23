@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { radius } from '../constants/radius';
 import { useTheme } from '../context/ThemeContext';
 
 const BUTTON_SIZE = 36;
@@ -14,7 +15,7 @@ const ThemeToggleButton = () => {
       onPress={toggleTheme}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       accessibilityLabel={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      hitSlop={6}>
+      hitSlop={8}>
       <Ionicons
         name={isDark ? 'sunny-outline' : 'moon-outline'}
         size={ICON_SIZE}
@@ -34,9 +35,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 6,
+    borderRadius: radius.full,
   },
   pressed: {
     opacity: 0.7,
+    backgroundColor: 'rgba(128, 128, 128, 0.15)',
   },
   sunIcon: {
     width: ICON_SIZE,

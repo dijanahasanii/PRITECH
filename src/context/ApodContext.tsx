@@ -19,6 +19,7 @@ import type { ApodData } from '../types/nasa';
 interface ApodContextValue {
   apod: ApodData | null;
   isLoading: boolean;
+  error: string | null;
   refreshApod: () => Promise<void>;
 }
 
@@ -27,6 +28,7 @@ const ApodContext = createContext<ApodContextValue | null>(null);
 export const ApodProvider = ({ children }: { children: ReactNode }) => {
   const [apod, setApod] = useState<ApodData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -42,9 +44,10 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
       }
 
-      const todaysApod = await loadTodaysApod((updatedApod) => {
+      const result = await loadTodaysApod((updatedApod) => {
         if (active) {
           setApod(updatedApod);
+          setError(null);
           setIsLoading(false);
         }
       });
@@ -53,10 +56,11 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      if (todaysApod) {
-        setApod(todaysApod);
+      if (result.apod) {
+        setApod(result.apod);
       }
 
+      setError(result.error);
       setIsLoading(false);
     })();
 
@@ -70,14 +74,20 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
     }
 
-    const todaysApod = await refreshTodaysApod();
-    setApod(todaysApod);
+    setError(null);
+    const result = await refreshTodaysApod();
+
+    if (result.apod) {
+      setApod(result.apod);
+    }
+
+    setError(result.error);
     setIsLoading(false);
   }, [apod]);
 
   const value = useMemo(
-    () => ({ apod, isLoading, refreshApod }),
-    [apod, isLoading, refreshApod],
+    () => ({ apod, isLoading, error, refreshApod }),
+    [apod, isLoading, error, refreshApod],
   );
 
   return <ApodContext.Provider value={value}>{children}</ApodContext.Provider>;

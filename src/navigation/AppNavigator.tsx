@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import { typography } from '../constants/typography';
 import { useTheme } from '../context/ThemeContext';
 import AddTaskScreen from '../screens/AddTaskScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -16,9 +17,13 @@ const AppNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.surface },
+        headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.primary,
-        headerTitleStyle: { color: colors.text, fontWeight: '600' },
+        headerTitleStyle: {
+          color: colors.text,
+          fontWeight: typography.title.fontWeight,
+          fontSize: typography.title.fontSize,
+        },
         headerShadowVisible: false,
         contentStyle: { backgroundColor: colors.background },
       }}>

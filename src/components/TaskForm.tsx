@@ -2,8 +2,16 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { ColorScheme } from '../constants/colors';
+import { spacing } from '../constants/spacing';
+import { typography } from '../constants/typography';
 import { useTheme } from '../context/ThemeContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
+import {
+  createInputStyle,
+  createPrimaryButtonStyle,
+  createPrimaryButtonTextStyle,
+  pressedStyle,
+} from '../styles/common';
 import { validateTitle } from '../utils/validation';
 
 interface TaskFormProps {
@@ -14,52 +22,35 @@ interface TaskFormProps {
 const createStyles = (colors: ColorScheme) =>
   StyleSheet.create({
     container: {
-      gap: 20,
+      gap: spacing.xl,
     },
     field: {
-      gap: 8,
+      gap: spacing.sm,
     },
     label: {
-      fontSize: 14,
-      fontWeight: '600',
+      ...typography.label,
       color: colors.text,
     },
     input: {
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      fontSize: 16,
+      ...createInputStyle(colors),
+      fontSize: typography.body.fontSize,
       color: colors.text,
     },
     inputError: {
       borderColor: colors.error,
     },
     textArea: {
-      minHeight: 100,
-      paddingTop: 14,
+      minHeight: 120,
+      paddingTop: spacing.md + 2,
+      textAlignVertical: 'top',
     },
     errorText: {
       color: colors.error,
-      fontSize: 13,
+      ...typography.bodySmall,
     },
-    button: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      paddingVertical: 16,
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    buttonPressed: {
-      opacity: 0.9,
-    },
-    buttonText: {
-      color: colors.onPrimary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
+    button: createPrimaryButtonStyle(colors),
+    buttonPressed: pressedStyle,
+    buttonText: createPrimaryButtonTextStyle(colors),
   });
 
 const TaskForm = ({ onSubmit, submitLabel = 'Create Task' }: TaskFormProps) => {

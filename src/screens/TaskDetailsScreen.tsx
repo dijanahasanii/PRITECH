@@ -4,9 +4,19 @@ import type { RouteProp } from '@react-navigation/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import type { ColorScheme } from '../constants/colors';
+import { radius } from '../constants/radius';
+import { spacing } from '../constants/spacing';
+import { typography } from '../constants/typography';
 import { useTasks } from '../context/TaskContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import type { RootStackParamList } from '../navigation/types';
+import {
+  createCardStyle,
+  createPrimaryButtonStyle,
+  createPrimaryButtonTextStyle,
+  pressedStyle,
+  screenHorizontalPadding,
+} from '../styles/common';
 import { formatDate } from '../utils/date';
 
 type TaskDetailsRoute = RouteProp<RootStackParamList, 'TaskDetails'>;
@@ -19,43 +29,37 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.background,
     },
     content: {
-      padding: 16,
-      gap: 12,
+      paddingHorizontal: screenHorizontalPadding,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xxl,
+      gap: spacing.md,
     },
     centered: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.background,
-      gap: 16,
+      gap: spacing.lg,
+      paddingHorizontal: spacing.xl,
     },
     notFound: {
-      fontSize: 16,
+      ...typography.body,
       color: colors.textSecondary,
+      textAlign: 'center',
     },
-    backButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      backgroundColor: colors.primary,
-      borderRadius: 8,
-    },
-    backButtonText: {
-      color: colors.onPrimary,
-      fontWeight: '600',
-    },
+    backButton: createPrimaryButtonStyle(colors),
+    backButtonPressed: pressedStyle,
+    backButtonText: createPrimaryButtonTextStyle(colors),
     card: {
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      gap: 12,
+      ...createCardStyle(colors),
+      gap: spacing.md,
+      padding: spacing.xl,
     },
     badge: {
       alignSelf: 'flex-start',
-      paddingHorizontal: 12,
-      paddingVertical: 5,
-      borderRadius: 20,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.full,
     },
     badgePending: {
       backgroundColor: colors.pendingLight,
@@ -64,8 +68,8 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.successLight,
     },
     badgeText: {
-      fontSize: 12,
-      fontWeight: '600',
+      ...typography.overline,
+      fontSize: 10,
     },
     badgeTextPending: {
       color: colors.pending,
@@ -74,41 +78,33 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.success,
     },
     title: {
-      fontSize: 24,
-      fontWeight: '700',
+      ...typography.titleLarge,
       color: colors.text,
-      lineHeight: 32,
     },
     dateLabel: {
-      fontSize: 12,
-      fontWeight: '600',
+      ...typography.overline,
       color: colors.textMuted,
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
-      marginTop: 4,
+      marginTop: spacing.xs,
     },
     date: {
-      fontSize: 15,
+      ...typography.bodySmall,
       color: colors.textSecondary,
     },
     sectionLabel: {
-      fontSize: 12,
-      fontWeight: '600',
+      ...typography.overline,
       color: colors.textMuted,
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
-      marginTop: 8,
+      marginTop: spacing.sm,
     },
     description: {
-      fontSize: 16,
+      ...typography.body,
       color: colors.text,
-      lineHeight: 24,
     },
     actionButton: {
-      borderRadius: 12,
-      paddingVertical: 16,
+      borderRadius: radius.md,
+      paddingVertical: spacing.lg,
       alignItems: 'center',
       borderWidth: 1,
+      minHeight: 52,
     },
     markCompleteButton: {
       backgroundColor: colors.successLight,
@@ -119,7 +115,7 @@ const createStyles = (colors: ColorScheme) =>
       borderColor: colors.pending,
     },
     actionButtonText: {
-      fontSize: 16,
+      ...typography.body,
       fontWeight: '600',
     },
     markCompleteText: {
@@ -129,21 +125,20 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.pending,
     },
     deleteButton: {
-      borderRadius: 12,
-      paddingVertical: 16,
+      borderRadius: radius.md,
+      paddingVertical: spacing.lg,
       alignItems: 'center',
       backgroundColor: colors.errorLight,
       borderWidth: 1,
       borderColor: colors.error,
+      minHeight: 52,
     },
     deleteButtonText: {
-      fontSize: 16,
+      ...typography.body,
       fontWeight: '600',
       color: colors.error,
     },
-    buttonPressed: {
-      opacity: 0.9,
-    },
+    buttonPressed: pressedStyle,
   });
 
 const TaskDetailsScreen = () => {
@@ -158,7 +153,9 @@ const TaskDetailsScreen = () => {
     return (
       <View style={styles.centered}>
         <Text style={styles.notFound}>Task not found</Text>
-        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Pressable
+          style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
+          onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Go Back</Text>
         </Pressable>
       </View>

@@ -3,10 +3,10 @@ import { loadCachedApod, saveCachedApod } from '../storage/apodStorage';
 import type { ApodData } from '../types/nasa';
 import { isRecentApodDate, isTodayApodDate } from '../utils/date';
 
-const INITIAL_TIMEOUT_MS = 12_000;
-const REFRESH_TIMEOUT_MS = 20_000;
-const RETRY_DELAY_MS = 3_000;
-const MAX_REFRESH_ATTEMPTS = 2;
+const INITIAL_TIMEOUT_MS = 25_000;
+const REFRESH_TIMEOUT_MS = 30_000;
+const RETRY_DELAY_MS = 2_000;
+const MAX_FETCH_ATTEMPTS = 3;
 
 const normalizeApod = (raw: Record<string, unknown>): ApodData => ({
   date: String(raw.date ?? ''),
@@ -17,6 +17,18 @@ const normalizeApod = (raw: Record<string, unknown>): ApodData => ({
   hdurl: raw.hdurl ? String(raw.hdurl) : undefined,
   thumbnail_url: raw.thumbnail_url ? String(raw.thumbnail_url) : undefined,
 });
+
+const toErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    if (error.name === 'AbortError') {
+      return 'NASA API request timed out. Try again on a stronger connection.';
+    }
+
+    return error.message;
+  }
+
+  return 'Failed to fetch today\'s APOD';
+};
 
 const fetchWithTimeout = async (url: string, timeoutMs: number): Promise<Response> => {
   const controller = new AbortController();
@@ -89,19 +101,20 @@ const fetchApodFromNetwork = async (
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const fetchCurrentApod = async (): Promise<ApodData> => fetchApodFromNetwork();
-
-const fetchWithRetries = async (): Promise<ApodData> => {
+const fetchCurrentApod = async (): Promise<ApodData> => {
   let lastError: Error | null = null;
 
-  for (let attempt = 0; attempt < MAX_REFRESH_ATTEMPTS; attempt += 1) {
+  for (let attempt = 0; attempt < MAX_FETCH_ATTEMPTS; attempt += 1) {
     try {
-      return await fetchApodFromNetwork(undefined, REFRESH_TIMEOUT_MS);
+      return await fetchApodFromNetwork(
+        undefined,
+        attempt === 0 ? INITIAL_TIMEOUT_MS : REFRESH_TIMEOUT_MS,
+      );
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Failed to fetch APOD');
     }
 
-    if (attempt < MAX_REFRESH_ATTEMPTS - 1) {
+    if (attempt < MAX_FETCH_ATTEMPTS - 1) {
       await wait(RETRY_DELAY_MS);
     }
   }
@@ -113,6 +126,11 @@ const getAnyCachedApod = async (): Promise<ApodData | null> => {
   const cachedApod = await loadCachedApod();
   return cachedApod?.date && cachedApod?.url ? cachedApod : null;
 };
+
+const getBestCachedApod = async (): Promise<ApodData | null> =>
+  (await getTodaysCachedApod()) ??
+  (await getDisplayCachedApod()) ??
+  (await getAnyCachedApod());
 
 export const getTodaysCachedApod = async (): Promise<ApodData | null> => {
   const cachedApod = await getAnyCachedApod();
@@ -126,10 +144,10 @@ export const getDisplayCachedApod = async (): Promise<ApodData | null> => {
 
 export const loadTodaysApod = async (
   onUpdated?: (apod: ApodData) => void,
-): Promise<ApodData | null> => {
+): Promise<{ apod: ApodData | null; error: string | null }> => {
   const cachedApod = await getTodaysCachedApod();
   if (cachedApod) {
-    return cachedApod;
+    return { apod: cachedApod, error: null };
   }
 
   const displayCache = await getDisplayCachedApod();
@@ -137,46 +155,51 @@ export const loadTodaysApod = async (
   try {
     const liveApod = await fetchCurrentApod();
     await saveCachedApod(liveApod);
-    return liveApod;
+    return { apod: liveApod, error: null };
   } catch (error) {
+    const message = toErrorMessage(error);
+
     if (__DEV__) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch APOD';
       console.warn('NASA APOD fetch failed:', message);
     }
 
-    if (displayCache) {
+    const fallbackApod = displayCache ?? (await getAnyCachedApod());
+    if (fallbackApod) {
       void (async () => {
         try {
-          const liveApod = await fetchWithRetries();
+          const liveApod = await fetchCurrentApod();
           await saveCachedApod(liveApod);
           onUpdated?.(liveApod);
         } catch (refreshError) {
           if (__DEV__) {
-            const message =
-              refreshError instanceof Error ? refreshError.message : 'Failed to refresh APOD';
-            console.warn('NASA APOD refresh failed:', message);
+            console.warn('NASA APOD refresh failed:', toErrorMessage(refreshError));
           }
         }
       })();
 
-      return displayCache;
+      return { apod: fallbackApod, error: null };
     }
 
-    return null;
+    return { apod: null, error: message };
   }
 };
 
-export const refreshTodaysApod = async (): Promise<ApodData | null> => {
+export const refreshTodaysApod = async (): Promise<{
+  apod: ApodData | null;
+  error: string | null;
+}> => {
   try {
-    const liveApod = await fetchWithRetries();
+    const liveApod = await fetchCurrentApod();
     await saveCachedApod(liveApod);
-    return liveApod;
+    return { apod: liveApod, error: null };
   } catch (error) {
+    const message = toErrorMessage(error);
+
     if (__DEV__) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch APOD';
       console.warn('NASA APOD refresh failed:', message);
     }
 
-    return (await getTodaysCachedApod()) ?? (await getDisplayCachedApod());
+    const fallbackApod = await getBestCachedApod();
+    return { apod: fallbackApod, error: fallbackApod ? null : message };
   }
 };

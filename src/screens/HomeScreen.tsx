@@ -6,11 +6,19 @@ import { useNavigation } from '@react-navigation/native';
 import ExploreSpaceCard from '../components/ExploreSpaceCard';
 import TaskList from '../components/TaskList';
 import type { ColorScheme } from '../constants/colors';
+import { radius } from '../constants/radius';
+import { spacing } from '../constants/spacing';
+import { typography } from '../constants/typography';
 import { useApod } from '../context/ApodContext';
 import { useTasks } from '../context/TaskContext';
 import { useTheme } from '../context/ThemeContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import type { RootStackParamList } from '../navigation/types';
+import {
+  createInputStyle,
+  pressedStyle,
+  screenHorizontalPadding,
+} from '../styles/common';
 import type { Task, TaskFilter } from '../types/task';
 
 type HomeNavigation = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -26,31 +34,26 @@ const createStyles = (colors: ColorScheme) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingHorizontal: 16,
-      paddingTop: 8,
+      paddingHorizontal: screenHorizontalPadding,
+      paddingTop: spacing.md,
     },
     headerSection: {
-      marginBottom: 8,
-      gap: 12,
+      marginBottom: spacing.md,
+      gap: spacing.md,
     },
     searchInput: {
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      fontSize: 16,
+      ...createInputStyle(colors),
+      fontSize: typography.body.fontSize,
       color: colors.text,
     },
     filterTabs: {
       flexDirection: 'row',
-      gap: 8,
+      gap: spacing.sm,
     },
     filterTab: {
       flex: 1,
-      paddingVertical: 10,
-      borderRadius: 10,
+      paddingVertical: spacing.md,
+      borderRadius: radius.sm,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
@@ -60,8 +63,11 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.primary,
       borderColor: colors.primary,
     },
+    filterTabPressed: {
+      opacity: 0.9,
+    },
     filterTabText: {
-      fontSize: 14,
+      ...typography.bodySmall,
       fontWeight: '600',
       color: colors.textSecondary,
     },
@@ -69,34 +75,30 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.onPrimary,
     },
     taskCount: {
-      fontSize: 13,
+      ...typography.caption,
       color: colors.textMuted,
-      fontWeight: '500',
     },
     fab: {
       position: 'absolute',
-      right: 24,
-      bottom: 24,
+      right: spacing.xl,
+      bottom: spacing.xl,
       width: 56,
       height: 56,
-      borderRadius: 28,
+      borderRadius: radius.full,
       backgroundColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
       shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      elevation: 6,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.22,
+      shadowRadius: 12,
+      elevation: 8,
     },
-    fabPressed: {
-      opacity: 0.9,
-      transform: [{ scale: 0.96 }],
-    },
+    fabPressed: pressedStyle,
     fabText: {
-      fontSize: 28,
+      fontSize: 30,
       color: colors.onPrimary,
-      lineHeight: 30,
+      lineHeight: 32,
       marginTop: -2,
     },
   });
@@ -104,7 +106,7 @@ const createStyles = (colors: ColorScheme) =>
 const HomeScreen = () => {
   const navigation = useNavigation<HomeNavigation>();
   const { tasks, isLoading, deleteTask } = useTasks();
-  const { apod, isLoading: apodLoading, refreshApod } = useApod();
+  const { apod, isLoading: apodLoading, error: apodError, refreshApod } = useApod();
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
 
@@ -154,7 +156,11 @@ const HomeScreen = () => {
         {FILTER_TABS.map((tab) => (
           <Pressable
             key={tab.key}
-            style={[styles.filterTab, activeFilter === tab.key && styles.filterTabActive]}
+            style={({ pressed }) => [
+              styles.filterTab,
+              activeFilter === tab.key && styles.filterTabActive,
+              pressed && styles.filterTabPressed,
+            ]}
             onPress={() => setActiveFilter(tab.key)}>
             <Text
               style={[
@@ -178,11 +184,12 @@ const HomeScreen = () => {
       <ExploreSpaceCard
         apod={apod}
         isLoading={apodLoading && !apod}
+        error={apodError}
         onReadMore={handleReadMore}
         onRetry={handleRetryApod}
       />
     ),
-    [apod, apodLoading, handleReadMore, handleRetryApod],
+    [apod, apodLoading, apodError, handleReadMore, handleRetryApod],
   );
 
   return (

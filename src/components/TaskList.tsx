@@ -3,6 +3,7 @@ import { FlatList, ScrollView, StyleSheet } from 'react-native';
 import EmptyState from './EmptyState';
 import TaskCard from './TaskCard';
 import { TaskCardSkeleton } from './SkeletonLoader';
+import { spacing } from '../constants/spacing';
 import type { Task } from '../types/task';
 
 interface TaskListProps {
@@ -14,6 +15,8 @@ interface TaskListProps {
   listHeader?: React.ReactElement | null;
   renderFooter?: () => React.ReactElement | null;
 }
+
+const FAB_CLEARANCE = 100;
 
 const TaskList = ({
   tasks,
@@ -61,13 +64,13 @@ export default TaskList;
 
 const styles = StyleSheet.create({
   list: {
-    paddingBottom: 100,
+    paddingBottom: FAB_CLEARANCE,
   },
   emptyList: {
     flexGrow: 1,
-    paddingBottom: 100,
+    paddingBottom: FAB_CLEARANCE,
   },
   skeletonContainer: {
-    paddingBottom: 24,
+    paddingBottom: spacing.xl,
   },
 });

@@ -5,10 +5,18 @@ import { useRoute } from '@react-navigation/native';
 
 import NASAImageCard from '../components/NASAImageCard';
 import type { ColorScheme } from '../constants/colors';
+import { spacing } from '../constants/spacing';
+import { typography } from '../constants/typography';
 import { useApod } from '../context/ApodContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import type { RootStackParamList } from '../navigation/types';
 import type { ApodData } from '../types/nasa';
+import {
+  createPrimaryButtonStyle,
+  createPrimaryButtonTextStyle,
+  pressedStyle,
+  screenHorizontalPadding,
+} from '../styles/common';
 import { formatDate } from '../utils/date';
 import { getApodWatchLabel, isApodVideo } from '../utils/nasa';
 import { openApodLink } from '../utils/openApodLink';
@@ -22,47 +30,38 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.background,
     },
     content: {
-      padding: 16,
-      gap: 16,
-      paddingBottom: 32,
+      paddingHorizontal: screenHorizontalPadding,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xxl,
+      gap: spacing.lg,
     },
     title: {
+      ...typography.titleLarge,
       fontSize: 22,
-      fontWeight: '700',
-      color: colors.text,
       lineHeight: 30,
+      color: colors.text,
     },
     date: {
-      fontSize: 14,
+      ...typography.bodySmall,
       color: colors.textMuted,
       fontWeight: '500',
     },
     videoHint: {
-      fontSize: 14,
+      ...typography.bodySmall,
       color: colors.primary,
       fontWeight: '500',
-      lineHeight: 20,
     },
     explanation: {
-      fontSize: 16,
-      color: colors.textSecondary,
+      ...typography.body,
       lineHeight: 26,
+      color: colors.textSecondary,
     },
     button: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      paddingVertical: 16,
-      alignItems: 'center',
-      marginTop: 8,
+      ...createPrimaryButtonStyle(colors),
+      marginTop: spacing.sm,
     },
-    buttonPressed: {
-      opacity: 0.9,
-    },
-    buttonText: {
-      color: colors.onPrimary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
+    buttonPressed: pressedStyle,
+    buttonText: createPrimaryButtonTextStyle(colors),
   });
 
 const NASADetailScreen = () => {

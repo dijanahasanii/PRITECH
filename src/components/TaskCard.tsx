@@ -1,7 +1,11 @@
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ColorScheme } from '../constants/colors';
+import { radius } from '../constants/radius';
+import { spacing } from '../constants/spacing';
+import { typography } from '../constants/typography';
 import { useThemedStyles } from '../hooks/useThemedStyles';
+import { createCardStyle, pressedStyle } from '../styles/common';
 import { formatDate } from '../utils/date';
 import type { Task } from '../types/task';
 
@@ -14,33 +18,20 @@ interface TaskCardProps {
 const createStyles = (colors: ColorScheme) =>
   StyleSheet.create({
     card: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
+      ...createCardStyle(colors),
+      marginBottom: spacing.md,
     },
-    cardPressed: {
-      opacity: 0.9,
-      transform: [{ scale: 0.99 }],
-    },
+    cardPressed: pressedStyle,
     header: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'space-between',
-      gap: 8,
-      marginBottom: 8,
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
     },
     title: {
       flex: 1,
-      fontSize: 17,
-      fontWeight: '600',
+      ...typography.title,
       color: colors.text,
     },
     titleCompleted: {
@@ -48,29 +39,40 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.textMuted,
     },
     description: {
-      fontSize: 14,
+      ...typography.bodySmall,
       color: colors.textSecondary,
-      lineHeight: 20,
-      marginBottom: 12,
+      marginBottom: spacing.md,
     },
     footer: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingTop: spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
     },
     date: {
-      fontSize: 12,
+      ...typography.caption,
       color: colors.textMuted,
     },
+    deleteButton: {
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.sm,
+    },
+    deleteButtonPressed: {
+      opacity: 0.7,
+      backgroundColor: colors.errorLight,
+    },
     deleteText: {
-      fontSize: 13,
+      ...typography.bodySmall,
       color: colors.error,
-      fontWeight: '500',
+      fontWeight: '600',
     },
     badge: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 20,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.full,
     },
     badgePending: {
       backgroundColor: colors.pendingLight,
@@ -79,8 +81,8 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.successLight,
     },
     badgeText: {
-      fontSize: 11,
-      fontWeight: '600',
+      ...typography.overline,
+      fontSize: 10,
     },
     badgeTextPending: {
       color: colors.pending,
@@ -106,12 +108,12 @@ const TaskCard = ({ task, onPress, onDelete }: TaskCardProps) => {
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={() => onPress(task)}>
       <View style={styles.header}>
-        <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={1}>
+        <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={2}>
           {task.title}
         </Text>
         <View style={[styles.badge, isCompleted ? styles.badgeCompleted : styles.badgePending]}>
           <Text style={[styles.badgeText, isCompleted ? styles.badgeTextCompleted : styles.badgeTextPending]}>
-            {isCompleted ? 'Completed' : 'Pending'}
+            {isCompleted ? 'Done' : 'Pending'}
           </Text>
         </View>
       </View>
@@ -125,7 +127,10 @@ const TaskCard = ({ task, onPress, onDelete }: TaskCardProps) => {
       <View style={styles.footer}>
         <Text style={styles.date}>{formatDate(task.createdDate)}</Text>
         {onDelete ? (
-          <Pressable onPress={handleDelete} hitSlop={8}>
+          <Pressable
+            onPress={handleDelete}
+            hitSlop={8}
+            style={({ pressed }) => [styles.deleteButton, pressed && styles.deleteButtonPressed]}>
             <Text style={styles.deleteText}>Delete</Text>
           </Pressable>
         ) : null}

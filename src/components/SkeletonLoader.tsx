@@ -2,7 +2,10 @@ import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View, ViewStyle } from 'react-native';
 
 import type { ColorScheme } from '../constants/colors';
+import { radius } from '../constants/radius';
+import { spacing } from '../constants/spacing';
 import { useThemedStyles } from '../hooks/useThemedStyles';
+import { createCardStyle } from '../styles/common';
 
 interface SkeletonLoaderProps {
   style?: ViewStyle;
@@ -11,16 +14,16 @@ interface SkeletonLoaderProps {
 const createStyles = (colors: ColorScheme) =>
   StyleSheet.create({
     container: {
-      gap: 12,
+      gap: spacing.md,
     },
     box: {
       backgroundColor: colors.skeleton,
-      borderRadius: 8,
+      borderRadius: radius.sm,
     },
     image: {
       width: '100%',
       aspectRatio: 16 / 9,
-      borderRadius: 12,
+      borderRadius: radius.md,
     },
     title: {
       height: 20,
@@ -35,13 +38,9 @@ const createStyles = (colors: ColorScheme) =>
       width: '60%',
     },
     taskCard: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      gap: 10,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
+      ...createCardStyle(colors),
+      gap: spacing.md,
+      marginBottom: spacing.md,
     },
     taskTitle: {
       height: 18,

@@ -10,7 +10,7 @@ I built a personal task manager where users can add, view, edit status, and dele
 
 | Home | Add Task | NASA Detail |
 |---|---|---|
-| ![Home screen](docs/screenshots/home.png?v=2) | ![Add task screen](docs/screenshots/add-task.png?v=1) | ![NASA detail screen](docs/screenshots/nasa-detail.png?v=2) |
+| ![Home screen](docs/screenshots/home.png?v=3) | ![Add task screen](docs/screenshots/add-task.png?v=3) | ![NASA detail screen](docs/screenshots/nasa-detail.png?v=3) |
 
 ## Features
 

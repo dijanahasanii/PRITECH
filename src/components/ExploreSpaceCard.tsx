@@ -2,17 +2,28 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 
 import type { ColorScheme } from '../constants/colors';
 import { NASA_USING_DEMO_KEY } from '../constants/nasa';
+import { radius } from '../constants/radius';
+import { spacing } from '../constants/spacing';
+import { typography } from '../constants/typography';
 import { useTheme } from '../context/ThemeContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import type { ApodData } from '../types/nasa';
 import { formatDate } from '../utils/date';
 import { getApodWatchLabel, isApodVideo } from '../utils/nasa';
+import {
+  createCardStyle,
+  createPrimaryButtonStyle,
+  createPrimaryButtonTextStyle,
+  createSectionTitleStyle,
+  pressedStyle,
+} from '../styles/common';
 import NASAImageCard from './NASAImageCard';
 import { SkeletonLoader } from './SkeletonLoader';
 
 interface ExploreSpaceCardProps {
   apod: ApodData | null;
   isLoading: boolean;
+  error?: string | null;
   onReadMore: () => void;
   onRetry: () => void;
 }
@@ -20,98 +31,82 @@ interface ExploreSpaceCardProps {
 const createStyles = (colors: ColorScheme) =>
   StyleSheet.create({
     container: {
-      marginTop: 8,
-      marginBottom: 24,
+      marginTop: spacing.sm,
+      marginBottom: spacing.xl,
     },
     sectionTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: colors.text,
-      marginBottom: 16,
+      ...createSectionTitleStyle(colors),
+      marginBottom: spacing.lg,
     },
     card: {
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      gap: 12,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.06,
-      shadowRadius: 8,
-      elevation: 3,
+      ...createCardStyle(colors),
+      gap: spacing.md,
     },
     date: {
-      fontSize: 13,
+      ...typography.caption,
       color: colors.textMuted,
-      fontWeight: '500',
     },
     title: {
-      fontSize: 16,
-      fontWeight: '600',
+      ...typography.title,
       color: colors.text,
-      lineHeight: 22,
     },
     explanation: {
-      fontSize: 14,
+      ...typography.bodySmall,
       color: colors.textSecondary,
-      lineHeight: 20,
     },
     videoLabel: {
-      fontSize: 13,
+      ...typography.bodySmall,
       color: colors.primary,
       fontWeight: '600',
     },
     readMoreButton: {
       alignSelf: 'flex-start',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
       backgroundColor: colors.primaryLight,
-      borderRadius: 8,
+      borderRadius: radius.sm,
+      minHeight: 40,
+      justifyContent: 'center',
+    },
+    readMoreButtonPressed: {
+      opacity: 0.88,
     },
     readMoreText: {
       color: colors.primary,
-      fontSize: 14,
+      ...typography.bodySmall,
       fontWeight: '600',
     },
     retryButton: {
+      ...createPrimaryButtonStyle(colors),
       alignSelf: 'flex-start',
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      backgroundColor: colors.primary,
-      borderRadius: 8,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      minHeight: 40,
     },
-    retryButtonPressed: {
-      opacity: 0.9,
-    },
-    retryText: {
-      color: colors.onPrimary,
-      fontWeight: '600',
-      fontSize: 14,
-    },
+    retryButtonPressed: pressedStyle,
+    retryText: createPrimaryButtonTextStyle(colors),
     loadingContainer: {
-      gap: 12,
+      gap: spacing.md,
     },
     loadingRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 8,
+      gap: spacing.sm,
+      paddingVertical: spacing.xs,
     },
     loadingText: {
+      ...typography.bodySmall,
       color: colors.textSecondary,
-      fontSize: 14,
       fontWeight: '500',
     },
     errorText: {
+      ...typography.bodySmall,
       color: colors.textSecondary,
-      fontSize: 14,
-      lineHeight: 20,
     },
   });
 
-const ExploreSpaceCard = ({ apod, isLoading, onReadMore, onRetry }: ExploreSpaceCardProps) => {
+const ExploreSpaceCard = ({ apod, isLoading, error, onReadMore, onRetry }: ExploreSpaceCardProps) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const showSkeleton = !apod && isLoading;
@@ -143,7 +138,9 @@ const ExploreSpaceCard = ({ apod, isLoading, onReadMore, onRetry }: ExploreSpace
               <Text style={styles.videoLabel}>{getApodWatchLabel(apod)}</Text>
             </>
           ) : null}
-          <Pressable style={styles.readMoreButton} onPress={onReadMore}>
+          <Pressable
+            style={({ pressed }) => [styles.readMoreButton, pressed && styles.readMoreButtonPressed]}
+            onPress={onReadMore}>
             <Text style={styles.readMoreText}>
               {isApodVideo(apod) ? 'View Details' : 'Read More'}
             </Text>
@@ -152,9 +149,10 @@ const ExploreSpaceCard = ({ apod, isLoading, onReadMore, onRetry }: ExploreSpace
       ) : (
         <View style={styles.card}>
           <Text style={styles.errorText}>
-            {NASA_USING_DEMO_KEY
-              ? 'NASA demo key is rate-limited. Add your own key in .env, restart Expo with npx expo start -c, then reload.'
-              : 'Could not load today\'s NASA image. Check your connection and try again.'}
+            {error ??
+              (NASA_USING_DEMO_KEY
+                ? 'NASA demo key is rate-limited. Add your own key in .env, restart Expo with npx expo start -c, then reload.'
+                : 'Could not load today\'s NASA image. Check your connection and try again.')}
           </Text>
           <Pressable
             style={({ pressed }) => [styles.retryButton, pressed && styles.retryButtonPressed]}

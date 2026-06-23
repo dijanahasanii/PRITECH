@@ -4,9 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import TaskForm from '../components/TaskForm';
 import type { ColorScheme } from '../constants/colors';
+import { spacing } from '../constants/spacing';
 import { useTasks } from '../context/TaskContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import type { RootStackParamList } from '../navigation/types';
+import { screenHorizontalPadding } from '../styles/common';
 
 type AddTaskNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTask'>;
 
@@ -15,7 +17,9 @@ const createStyles = (colors: ColorScheme) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      padding: 16,
+      paddingHorizontal: screenHorizontalPadding,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xl,
     },
   });
 

@@ -3,7 +3,9 @@ import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ColorScheme } from '../constants/colors';
+import { radius } from '../constants/radius';
 import { useThemedStyles } from '../hooks/useThemedStyles';
+import { pressedStyle } from '../styles/common';
 import type { ApodData } from '../types/nasa';
 import { getApodThumbnailUrl, isApodVideo } from '../utils/nasa';
 
@@ -20,7 +22,7 @@ const createStyles = (colors: ColorScheme) =>
     },
     container: {
       width: '100%',
-      borderRadius: 12,
+      borderRadius: radius.md,
       overflow: 'hidden',
       backgroundColor: colors.skeleton,
       position: 'relative',
@@ -46,8 +48,8 @@ const createStyles = (colors: ColorScheme) =>
     playButton: {
       width: 56,
       height: 56,
-      borderRadius: 28,
-      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+      borderRadius: radius.full,
+      backgroundColor: 'rgba(255, 255, 255, 0.94)',
       alignItems: 'center',
       justifyContent: 'center',
       paddingLeft: 4,
@@ -56,9 +58,7 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 22,
       color: colors.primary,
     },
-    pressed: {
-      opacity: 0.92,
-    },
+    pressed: pressedStyle,
   });
 
 const NASAImageCard = ({ apod, aspectRatio = 16 / 9, onPress }: NASAImageCardProps) => {
