@@ -1,16 +1,18 @@
 # PRITECH React Native Task
 
+**Repository:** [github.com/dijanahasanii/PRITECH-TASK](https://github.com/dijanahasanii/PRITECH-TASK)
+
 A task manager built with React Native, TypeScript, and Expo. Includes an **Explore Space** section powered by NASA's Astronomy Picture of the Day API.
 
 ## What I built
 
-I built a personal task manager where users can add, view, update task status, and delete tasks with title, description, status, and created date. Tasks are saved on the device with AsyncStorage, and the home screen supports search and filtering by status. I also added stack navigation across task screens and a NASA APOD section that fetches today's astronomy image from a public API, with caching for faster repeat loads.
+I built a personal task manager where users can add, view, update task status, and delete tasks with title, description, status, and created date. Tasks are saved on the device with AsyncStorage, and the home screen supports search and filtering by status. I also added stack navigation across task screens, light/dark theme toggle, and a NASA APOD section that fetches today's astronomy image or video from a public API—with a paused video preview for direct `.mp4` links and caching for faster repeat loads.
 
 ## Screenshots
 
 | Home | Add Task | NASA Detail |
 |---|---|---|
-| ![Home screen](docs/screenshots/home.png?v=4) | ![Add task screen](docs/screenshots/add-task.png?v=4) | ![NASA detail screen](docs/screenshots/nasa-detail.png?v=4) |
+| ![Home screen](docs/screenshots/home.png?v=5) | ![Add task screen](docs/screenshots/add-task.png?v=5) | ![NASA detail screen](docs/screenshots/nasa-detail.png?v=5) |
 
 ## Features
 
@@ -82,4 +84,4 @@ src/
 
 ## NASA API
 
-`src/services/nasaService.ts` fetches today's APOD from NASA (with cache), retries on failure, and only shows images from today's date.
+`src/services/nasaService.ts` fetches today's APOD from NASA (with cache), retries on failure, and only shows today's image or video.
