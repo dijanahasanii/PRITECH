@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import NASAVideoPreview from './NASAVideoPreview';
+import { useTheme } from '../context/ThemeContext';
 import type { ColorScheme } from '../constants/colors';
 import { radius } from '../constants/radius';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import { pressedStyle } from '../styles/common';
 import type { ApodData } from '../types/nasa';
-import { getApodThumbnailUrl, isApodVideo } from '../utils/nasa';
+import { getApodDirectVideoUrl, getApodThumbnailUrl, isApodVideo } from '../utils/nasa';
 
 interface NASAImageCardProps {
   apod: ApodData;
@@ -30,7 +32,7 @@ const createStyles = (colors: ColorScheme) =>
     videoContainer: {
       maxHeight: 220,
     },
-    image: {
+    media: {
       ...StyleSheet.absoluteFillObject,
     },
     placeholder: {
@@ -61,12 +63,25 @@ const createStyles = (colors: ColorScheme) =>
     pressed: pressedStyle,
   });
 
+const PlayOverlay = ({ styles }: { styles: ReturnType<typeof createStyles> }) => (
+  <View style={styles.playOverlay} pointerEvents="none">
+    <View style={styles.playButton}>
+      <Text style={styles.playIcon}>▶</Text>
+    </View>
+  </View>
+);
+
 const NASAImageCard = ({ apod, aspectRatio = 16 / 9, onPress }: NASAImageCardProps) => {
+  const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const isVideo = isApodVideo(apod);
-  const imageUri = getApodThumbnailUrl(apod);
+  const thumbnailUri = getApodThumbnailUrl(apod);
+  const directVideoUri = getApodDirectVideoUrl(apod);
   const [imageFailed, setImageFailed] = useState(false);
-  const showPlaceholder = !imageUri || imageFailed;
+
+  const showThumbnail = Boolean(thumbnailUri && !imageFailed);
+  const showVideoPreview = isVideo && !showThumbnail && Boolean(directVideoUri);
+  const showPlaceholder = !showThumbnail && !showVideoPreview;
 
   const content = (
     <View style={[styles.container, { aspectRatio }, isVideo && styles.videoContainer]}>
@@ -78,24 +93,29 @@ const NASAImageCard = ({ apod, aspectRatio = 16 / 9, onPress }: NASAImageCardPro
             </View>
           ) : null}
         </View>
-      ) : (
+      ) : null}
+
+      {showThumbnail ? (
         <Image
-          source={{ uri: imageUri }}
-          style={styles.image}
+          source={{ uri: thumbnailUri }}
+          style={styles.media}
           contentFit="cover"
           cachePolicy="memory-disk"
           priority="high"
           transition={300}
           onError={() => setImageFailed(true)}
         />
-      )}
-      {isVideo && !showPlaceholder ? (
-        <View style={styles.playOverlay} pointerEvents="none">
-          <View style={styles.playButton}>
-            <Text style={styles.playIcon}>▶</Text>
-          </View>
-        </View>
       ) : null}
+
+      {showVideoPreview && directVideoUri ? (
+        <NASAVideoPreview
+          uri={directVideoUri}
+          style={styles.media}
+          placeholderColor={colors.videoPlaceholder}
+        />
+      ) : null}
+
+      {isVideo && (showThumbnail || showVideoPreview) ? <PlayOverlay styles={styles} /> : null}
     </View>
   );
 

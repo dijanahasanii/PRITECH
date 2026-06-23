@@ -4,13 +4,13 @@ A task manager built with React Native, TypeScript, and Expo. Includes an **Expl
 
 ## What I built
 
-I built a personal task manager where users can add, view, edit status, and delete tasks with title, description, status, and created date. Tasks are saved on the device with AsyncStorage, and the home screen supports search and filtering by status. I also added stack navigation across task screens and a NASA APOD section that fetches today's astronomy image from a public API, with caching for faster repeat loads.
+I built a personal task manager where users can add, view, update task status, and delete tasks with title, description, status, and created date. Tasks are saved on the device with AsyncStorage, and the home screen supports search and filtering by status. I also added stack navigation across task screens and a NASA APOD section that fetches today's astronomy image from a public API, with caching for faster repeat loads.
 
 ## Screenshots
 
 | Home | Add Task | NASA Detail |
 |---|---|---|
-| ![Home screen](docs/screenshots/home.png?v=3) | ![Add task screen](docs/screenshots/add-task.png?v=3) | ![NASA detail screen](docs/screenshots/nasa-detail.png?v=3) |
+| ![Home screen](docs/screenshots/home.png?v=4) | ![Add task screen](docs/screenshots/add-task.png?v=4) | ![NASA detail screen](docs/screenshots/nasa-detail.png?v=4) |
 
 ## Features
 
@@ -19,7 +19,7 @@ I built a personal task manager where users can add, view, edit status, and dele
 - Filter by All / Pending / Completed
 - Tasks saved locally with AsyncStorage
 - Stack navigation across Home, Add Task, Task Details, and NASA Detail
-- NASA APOD card with today's image, date, 16:9 preview, and detail screen
+- NASA APOD card with today's image or video preview, date, 16:9 preview, and detail screen
 
 ## Tech stack
 
@@ -27,7 +27,7 @@ I built a personal task manager where users can add, view, edit status, and dele
 - TypeScript
 - React Navigation (native stack)
 - AsyncStorage
-- expo-image, expo-web-browser
+- expo-image, expo-video, expo-web-browser
 
 ## Run the app
 

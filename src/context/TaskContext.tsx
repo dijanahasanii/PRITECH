@@ -7,7 +7,6 @@ interface TaskContextValue {
   tasks: Task[];
   isLoading: boolean;
   addTask: (title: string, description: string) => void;
-  updateTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'status'>>) => void;
   deleteTask: (id: string) => void;
   toggleTaskStatus: (id: string) => void;
   getTaskById: (id: string) => Task | undefined;
@@ -82,19 +81,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     [persistTasks],
   );
 
-  const updateTask = useCallback(
-    (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'status'>>) => {
-      setTasks((prev) => {
-        const nextTasks = prev.map((task) =>
-          task.id === id ? { ...task, ...updates } : task,
-        );
-        persistTasks(nextTasks);
-        return nextTasks;
-      });
-    },
-    [persistTasks],
-  );
-
   const deleteTask = useCallback(
     (id: string) => {
       setTasks((prev) => {
@@ -133,12 +119,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       tasks,
       isLoading,
       addTask,
-      updateTask,
       deleteTask,
       toggleTaskStatus,
       getTaskById,
     }),
-    [tasks, isLoading, addTask, updateTask, deleteTask, toggleTaskStatus, getTaskById],
+    [tasks, isLoading, addTask, deleteTask, toggleTaskStatus, getTaskById],
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

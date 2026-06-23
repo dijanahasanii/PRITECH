@@ -92,7 +92,7 @@ const NASADetailScreen = () => {
 
       {isVideo ? (
         <Text style={styles.videoHint}>
-          Tap the preview or the button below to {watchLabel.toLowerCase()}.
+          Tap the preview or the button below to watch this video on NASA.
         </Text>
       ) : null}
 

@@ -1,5 +1,6 @@
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import StatusBadge from './StatusBadge';
 import type { ColorScheme } from '../constants/colors';
 import { radius } from '../constants/radius';
 import { spacing } from '../constants/spacing';
@@ -69,27 +70,6 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.error,
       fontWeight: '600',
     },
-    badge: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
-      borderRadius: radius.full,
-    },
-    badgePending: {
-      backgroundColor: colors.pendingLight,
-    },
-    badgeCompleted: {
-      backgroundColor: colors.successLight,
-    },
-    badgeText: {
-      ...typography.overline,
-      fontSize: 10,
-    },
-    badgeTextPending: {
-      color: colors.pending,
-    },
-    badgeTextCompleted: {
-      color: colors.success,
-    },
   });
 
 const TaskCard = ({ task, onPress, onDelete }: TaskCardProps) => {
@@ -111,11 +91,7 @@ const TaskCard = ({ task, onPress, onDelete }: TaskCardProps) => {
         <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={2}>
           {task.title}
         </Text>
-        <View style={[styles.badge, isCompleted ? styles.badgeCompleted : styles.badgePending]}>
-          <Text style={[styles.badgeText, isCompleted ? styles.badgeTextCompleted : styles.badgeTextPending]}>
-            {isCompleted ? 'Done' : 'Pending'}
-          </Text>
-        </View>
+        <StatusBadge status={task.status} compact />
       </View>
 
       {task.description ? (

@@ -3,8 +3,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
+import StatusBadge from '../components/StatusBadge';
 import type { ColorScheme } from '../constants/colors';
-import { radius } from '../constants/radius';
 import { spacing } from '../constants/spacing';
 import { typography } from '../constants/typography';
 import { useTasks } from '../context/TaskContext';
@@ -12,6 +12,9 @@ import { useThemedStyles } from '../hooks/useThemedStyles';
 import type { RootStackParamList } from '../navigation/types';
 import {
   createCardStyle,
+  createDangerButtonStyle,
+  createDangerButtonTextStyle,
+  createOutlineButtonStyle,
   createPrimaryButtonStyle,
   createPrimaryButtonTextStyle,
   pressedStyle,
@@ -55,28 +58,6 @@ const createStyles = (colors: ColorScheme) =>
       gap: spacing.md,
       padding: spacing.xl,
     },
-    badge: {
-      alignSelf: 'flex-start',
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
-      borderRadius: radius.full,
-    },
-    badgePending: {
-      backgroundColor: colors.pendingLight,
-    },
-    badgeCompleted: {
-      backgroundColor: colors.successLight,
-    },
-    badgeText: {
-      ...typography.overline,
-      fontSize: 10,
-    },
-    badgeTextPending: {
-      color: colors.pending,
-    },
-    badgeTextCompleted: {
-      color: colors.success,
-    },
     title: {
       ...typography.titleLarge,
       color: colors.text,
@@ -99,13 +80,7 @@ const createStyles = (colors: ColorScheme) =>
       ...typography.body,
       color: colors.text,
     },
-    actionButton: {
-      borderRadius: radius.md,
-      paddingVertical: spacing.lg,
-      alignItems: 'center',
-      borderWidth: 1,
-      minHeight: 52,
-    },
+    actionButton: createOutlineButtonStyle(colors),
     markCompleteButton: {
       backgroundColor: colors.successLight,
       borderColor: colors.success,
@@ -124,20 +99,8 @@ const createStyles = (colors: ColorScheme) =>
     markPendingText: {
       color: colors.pending,
     },
-    deleteButton: {
-      borderRadius: radius.md,
-      paddingVertical: spacing.lg,
-      alignItems: 'center',
-      backgroundColor: colors.errorLight,
-      borderWidth: 1,
-      borderColor: colors.error,
-      minHeight: 52,
-    },
-    deleteButtonText: {
-      ...typography.body,
-      fontWeight: '600',
-      color: colors.error,
-    },
+    deleteButton: createDangerButtonStyle(colors),
+    deleteButtonText: createDangerButtonTextStyle(colors),
     buttonPressed: pressedStyle,
   });
 
@@ -185,11 +148,7 @@ const TaskDetailsScreen = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.card}>
-        <View style={[styles.badge, isCompleted ? styles.badgeCompleted : styles.badgePending]}>
-          <Text style={[styles.badgeText, isCompleted ? styles.badgeTextCompleted : styles.badgeTextPending]}>
-            {isCompleted ? 'Completed' : 'Pending'}
-          </Text>
-        </View>
+        <StatusBadge status={task.status} />
 
         <Text style={styles.title}>{task.title}</Text>
 

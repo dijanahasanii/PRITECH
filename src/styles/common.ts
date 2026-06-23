@@ -54,3 +54,23 @@ export const createSectionTitleStyle = (colors: ColorScheme): TextStyle => ({
   ...typography.sectionTitle,
   color: colors.text,
 });
+
+export const createOutlineButtonStyle = (colors: ColorScheme): ViewStyle => ({
+  borderRadius: radius.md,
+  paddingVertical: spacing.lg,
+  alignItems: 'center',
+  borderWidth: 1,
+  minHeight: 52,
+});
+
+export const createDangerButtonStyle = (colors: ColorScheme): ViewStyle => ({
+  ...createOutlineButtonStyle(colors),
+  backgroundColor: colors.errorLight,
+  borderColor: colors.error,
+});
+
+export const createDangerButtonTextStyle = (colors: ColorScheme): TextStyle => ({
+  ...typography.body,
+  fontWeight: '600',
+  color: colors.error,
+});
