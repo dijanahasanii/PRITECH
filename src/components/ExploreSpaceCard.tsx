@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ColorScheme } from '../constants/colors';
-import { NASA_USING_DEMO_KEY } from '../constants/nasa';
+import { FALLBACK_APOD } from '../constants/fallbackApod';
 import { radius } from '../constants/radius';
 import { spacing } from '../constants/spacing';
 import { typography } from '../constants/typography';
@@ -12,8 +12,6 @@ import { formatDate } from '../utils/date';
 import { getApodWatchLabel, isApodVideo } from '../utils/nasa';
 import {
   createCardStyle,
-  createPrimaryButtonStyle,
-  createPrimaryButtonTextStyle,
   createSectionTitleStyle,
   pressedStyle,
 } from '../styles/common';
@@ -23,9 +21,8 @@ import { SkeletonLoader } from './SkeletonLoader';
 interface ExploreSpaceCardProps {
   apod: ApodData | null;
   isLoading: boolean;
-  error?: string | null;
+  isVideoActive?: boolean;
   onReadMore: () => void;
-  onRetry: () => void;
 }
 
 const createStyles = (colors: ColorScheme) =>
@@ -76,15 +73,6 @@ const createStyles = (colors: ColorScheme) =>
       ...typography.bodySmall,
       fontWeight: '600',
     },
-    retryButton: {
-      ...createPrimaryButtonStyle(colors),
-      alignSelf: 'flex-start',
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      minHeight: 40,
-    },
-    retryButtonPressed: pressedStyle,
-    retryText: createPrimaryButtonTextStyle(colors),
     loadingContainer: {
       gap: spacing.md,
     },
@@ -100,22 +88,28 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.textSecondary,
       fontWeight: '500',
     },
-    errorText: {
-      ...typography.bodySmall,
-      color: colors.textSecondary,
+    loadingOverlay: {
+      opacity: 0.72,
     },
+    loadingOverlayPressed: pressedStyle,
   });
 
-const ExploreSpaceCard = ({ apod, isLoading, error, onReadMore, onRetry }: ExploreSpaceCardProps) => {
+const ExploreSpaceCard = ({
+  apod,
+  isLoading,
+  isVideoActive = true,
+  onReadMore,
+}: ExploreSpaceCardProps) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
-  const showSkeleton = !apod && isLoading;
+  const showInitialSkeleton = isLoading && !apod;
+  const displayApod = apod ?? FALLBACK_APOD;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Explore Space</Text>
+      <Text style={styles.sectionTitle}>Take a break, explore space!</Text>
 
-      {showSkeleton ? (
+      {showInitialSkeleton ? (
         <View style={[styles.card, styles.loadingContainer]}>
           <SkeletonLoader />
           <View style={styles.loadingRow}>
@@ -123,41 +117,31 @@ const ExploreSpaceCard = ({ apod, isLoading, error, onReadMore, onRetry }: Explo
             <Text style={styles.loadingText}>Loading today&apos;s NASA image...</Text>
           </View>
         </View>
-      ) : apod ? (
-        <View style={styles.card}>
-          <NASAImageCard apod={apod} onPress={isApodVideo(apod) ? onReadMore : undefined} />
-          <Text style={styles.date}>{formatDate(apod.date)}</Text>
+      ) : (
+        <View style={[styles.card, isLoading && styles.loadingOverlay]}>
+          <NASAImageCard
+            apod={displayApod}
+            isVideoActive={isVideoActive}
+            onPress={isApodVideo(displayApod) ? onReadMore : undefined}
+          />
+          <Text style={styles.date}>{formatDate(displayApod.date)}</Text>
           <Text style={styles.title} numberOfLines={2}>
-            {apod.title}
+            {displayApod.title}
           </Text>
-          {isApodVideo(apod) ? (
+          {isApodVideo(displayApod) ? (
             <>
               <Text style={styles.explanation} numberOfLines={3}>
-                {apod.explanation}
+                {displayApod.explanation}
               </Text>
-              <Text style={styles.videoLabel}>{getApodWatchLabel(apod)}</Text>
+              <Text style={styles.videoLabel}>{getApodWatchLabel(displayApod)}</Text>
             </>
           ) : null}
           <Pressable
             style={({ pressed }) => [styles.readMoreButton, pressed && styles.readMoreButtonPressed]}
             onPress={onReadMore}>
             <Text style={styles.readMoreText}>
-              {isApodVideo(apod) ? 'View Details' : 'Read More'}
+              {isApodVideo(displayApod) ? 'View Details' : 'Read More'}
             </Text>
-          </Pressable>
-        </View>
-      ) : (
-        <View style={styles.card}>
-          <Text style={styles.errorText}>
-            {error ??
-              (NASA_USING_DEMO_KEY
-                ? 'NASA demo key is rate-limited. Add your own key in .env, restart Expo with npx expo start -c, then reload.'
-                : 'Could not load today\'s NASA image. Check your connection and try again.')}
-          </Text>
-          <Pressable
-            style={({ pressed }) => [styles.retryButton, pressed && styles.retryButtonPressed]}
-            onPress={onRetry}>
-            <Text style={styles.retryText}>Retry</Text>
           </Pressable>
         </View>
       )}

@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 
 import ExploreSpaceCard from '../components/ExploreSpaceCard';
 import TaskList from '../components/TaskList';
+import { FALLBACK_APOD } from '../constants/fallbackApod';
 import type { ColorScheme } from '../constants/colors';
 import { radius } from '../constants/radius';
 import { spacing } from '../constants/spacing';
@@ -105,17 +106,14 @@ const createStyles = (colors: ColorScheme) =>
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeNavigation>();
+  const isFocused = useIsFocused();
   const { tasks, isLoading, deleteTask } = useTasks();
-  const { apod, isLoading: apodLoading, error: apodError, refreshApod } = useApod();
+  const { apod, isLoading: apodLoading } = useApod();
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<TaskFilter>('all');
-
-  const handleRetryApod = useCallback(() => {
-    void refreshApod();
-  }, [refreshApod]);
 
   const filteredTasks = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -137,9 +135,7 @@ const HomeScreen = () => {
   };
 
   const handleReadMore = useCallback(() => {
-    if (apod) {
-      navigation.navigate('NASADetail', { apod });
-    }
+    navigation.navigate('NASADetail', { apod: apod ?? FALLBACK_APOD });
   }, [apod, navigation]);
 
   const listHeader = (
@@ -183,13 +179,12 @@ const HomeScreen = () => {
     () => (
       <ExploreSpaceCard
         apod={apod}
-        isLoading={apodLoading && !apod}
-        error={apodError}
+        isLoading={apodLoading}
+        isVideoActive={isFocused}
         onReadMore={handleReadMore}
-        onRetry={handleRetryApod}
       />
     ),
-    [apod, apodLoading, apodError, handleReadMore, handleRetryApod],
+    [apod, apodLoading, handleReadMore, isFocused],
   );
 
   return (

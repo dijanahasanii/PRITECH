@@ -15,11 +15,11 @@ import {
   refreshTodaysApod,
 } from '../services/nasaService';
 import type { ApodData } from '../types/nasa';
+import { ApodVideoPrefetch } from './ApodVideoContext';
 
 interface ApodContextValue {
   apod: ApodData | null;
   isLoading: boolean;
-  error: string | null;
   refreshApod: () => Promise<void>;
 }
 
@@ -28,7 +28,6 @@ const ApodContext = createContext<ApodContextValue | null>(null);
 export const ApodProvider = ({ children }: { children: ReactNode }) => {
   const [apod, setApod] = useState<ApodData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -47,7 +46,6 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
       const result = await loadTodaysApod((updatedApod) => {
         if (active) {
           setApod(updatedApod);
-          setError(null);
           setIsLoading(false);
         }
       });
@@ -56,11 +54,7 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      if (result.apod) {
-        setApod(result.apod);
-      }
-
-      setError(result.error);
+      setApod(result.apod);
       setIsLoading(false);
     })();
 
@@ -70,27 +64,26 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const refreshApod = useCallback(async () => {
-    if (!apod) {
-      setIsLoading(true);
-    }
+    setIsLoading(true);
+    const result = await refreshTodaysApod((updatedApod) => {
+      setApod(updatedApod);
+      setIsLoading(false);
+    });
 
-    setError(null);
-    const result = await refreshTodaysApod();
-
-    if (result.apod) {
-      setApod(result.apod);
-    }
-
-    setError(result.error);
+    setApod(result.apod);
     setIsLoading(false);
-  }, [apod]);
+  }, []);
 
   const value = useMemo(
-    () => ({ apod, isLoading, error, refreshApod }),
-    [apod, isLoading, error, refreshApod],
+    () => ({ apod, isLoading, refreshApod }),
+    [apod, isLoading, refreshApod],
   );
 
-  return <ApodContext.Provider value={value}>{children}</ApodContext.Provider>;
+  return (
+    <ApodContext.Provider value={value}>
+      <ApodVideoPrefetch apod={apod}>{children}</ApodVideoPrefetch>
+    </ApodContext.Provider>
+  );
 };
 
 export const useApod = (): ApodContextValue => {

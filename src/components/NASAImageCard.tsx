@@ -15,6 +15,7 @@ interface NASAImageCardProps {
   apod: ApodData;
   aspectRatio?: number;
   onPress?: () => void;
+  isVideoActive?: boolean;
 }
 
 const createStyles = (colors: ColorScheme) =>
@@ -71,7 +72,12 @@ const PlayOverlay = ({ styles }: { styles: ReturnType<typeof createStyles> }) =>
   </View>
 );
 
-const NASAImageCard = ({ apod, aspectRatio = 16 / 9, onPress }: NASAImageCardProps) => {
+const NASAImageCard = ({
+  apod,
+  aspectRatio = 16 / 9,
+  onPress,
+  isVideoActive = true,
+}: NASAImageCardProps) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const isVideo = isApodVideo(apod);
@@ -112,6 +118,7 @@ const NASAImageCard = ({ apod, aspectRatio = 16 / 9, onPress }: NASAImageCardPro
           uri={directVideoUri}
           style={styles.media}
           placeholderColor={colors.videoPlaceholder}
+          isActive={isVideoActive}
         />
       ) : null}
 

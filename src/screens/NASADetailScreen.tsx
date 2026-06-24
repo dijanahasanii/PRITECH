@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import type { RouteProp } from '@react-navigation/native';
-import { useRoute } from '@react-navigation/native';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 
 import NASAImageCard from '../components/NASAImageCard';
 import type { ColorScheme } from '../constants/colors';
@@ -66,6 +66,7 @@ const createStyles = (colors: ColorScheme) =>
 
 const NASADetailScreen = () => {
   const route = useRoute<NASADetailRoute>();
+  const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
   const { apod: sharedApod } = useApod();
   const [apod, setApod] = useState<ApodData>(route.params.apod);
@@ -85,7 +86,11 @@ const NASADetailScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <NASAImageCard apod={apod} onPress={isVideo ? handleOpenWebsite : undefined} />
+      <NASAImageCard
+        apod={apod}
+        isVideoActive={isFocused}
+        onPress={isVideo ? handleOpenWebsite : undefined}
+      />
 
       <Text style={styles.title}>{apod.title}</Text>
       <Text style={styles.date}>{formatDate(apod.date)}</Text>
