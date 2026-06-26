@@ -1,7 +1,14 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
 
 import type { ColorScheme } from '../constants/colors';
 import { FALLBACK_APOD } from '../constants/fallbackApod';
+import {
+  NASA_LOADING_HINT,
+  NASA_LOADING_TITLE,
+  NASA_REFRESHING_HINT,
+  NASA_SLOW_HINT,
+} from '../constants/nasa';
 import { radius } from '../constants/radius';
 import { spacing } from '../constants/spacing';
 import { typography } from '../constants/typography';
@@ -21,6 +28,7 @@ import { SkeletonLoader } from './SkeletonLoader';
 interface ExploreSpaceCardProps {
   apod: ApodData | null;
   isLoading: boolean;
+  isRefreshing?: boolean;
   isVideoActive?: boolean;
   onReadMore: () => void;
 }
@@ -87,6 +95,31 @@ const createStyles = (colors: ColorScheme) =>
       ...typography.bodySmall,
       color: colors.textSecondary,
       fontWeight: '500',
+      textAlign: 'center',
+    },
+    loadingTitle: {
+      ...typography.body,
+      color: colors.text,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    loadingHint: {
+      ...typography.bodySmall,
+      color: colors.textMuted,
+      textAlign: 'center',
+      lineHeight: 20,
+      maxWidth: 300,
+    },
+    refreshingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    refreshingText: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '500',
+      flex: 1,
     },
     loadingOverlay: {
       opacity: 0.72,
@@ -97,13 +130,25 @@ const createStyles = (colors: ColorScheme) =>
 const ExploreSpaceCard = ({
   apod,
   isLoading,
+  isRefreshing = false,
   isVideoActive = true,
   onReadMore,
 }: ExploreSpaceCardProps) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const [showSlowHint, setShowSlowHint] = useState(false);
   const showInitialSkeleton = isLoading && !apod;
   const displayApod = apod ?? FALLBACK_APOD;
+
+  useEffect(() => {
+    if (!showInitialSkeleton) {
+      setShowSlowHint(false);
+      return;
+    }
+
+    const timer = setTimeout(() => setShowSlowHint(true), 4000);
+    return () => clearTimeout(timer);
+  }, [showInitialSkeleton]);
 
   return (
     <View style={styles.container}>
@@ -114,11 +159,20 @@ const ExploreSpaceCard = ({
           <SkeletonLoader />
           <View style={styles.loadingRow}>
             <ActivityIndicator color={colors.primary} />
-            <Text style={styles.loadingText}>Loading today&apos;s NASA image...</Text>
+            <Text style={styles.loadingTitle}>{NASA_LOADING_TITLE}</Text>
           </View>
+          <Text style={styles.loadingHint}>
+            {showSlowHint ? NASA_SLOW_HINT : NASA_LOADING_HINT}
+          </Text>
         </View>
       ) : (
-        <View style={[styles.card, isLoading && styles.loadingOverlay]}>
+        <View style={[styles.card, isRefreshing && styles.loadingOverlay]}>
+          {isRefreshing ? (
+            <View style={styles.refreshingRow}>
+              <ActivityIndicator color={colors.primary} size="small" />
+              <Text style={styles.refreshingText}>{NASA_REFRESHING_HINT}</Text>
+            </View>
+          ) : null}
           <NASAImageCard
             apod={displayApod}
             isVideoActive={isVideoActive}

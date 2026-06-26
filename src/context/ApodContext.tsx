@@ -20,6 +20,7 @@ import { ApodVideoPrefetch } from './ApodVideoContext';
 interface ApodContextValue {
   apod: ApodData | null;
   isLoading: boolean;
+  isRefreshing: boolean;
   refreshApod: () => Promise<void>;
 }
 
@@ -28,6 +29,7 @@ const ApodContext = createContext<ApodContextValue | null>(null);
 export const ApodProvider = ({ children }: { children: ReactNode }) => {
   const [apod, setApod] = useState<ApodData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -41,12 +43,14 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
       if (cachedApod) {
         setApod(cachedApod);
         setIsLoading(false);
+        setIsRefreshing(true);
       }
 
       const result = await loadTodaysApod((updatedApod) => {
         if (active) {
           setApod(updatedApod);
           setIsLoading(false);
+          setIsRefreshing(false);
         }
       });
 
@@ -56,6 +60,7 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
 
       setApod(result.apod);
       setIsLoading(false);
+      setIsRefreshing(false);
     })();
 
     return () => {
@@ -64,19 +69,25 @@ export const ApodProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const refreshApod = useCallback(async () => {
-    setIsLoading(true);
+    setIsRefreshing(true);
+    if (!apod) {
+      setIsLoading(true);
+    }
+
     const result = await refreshTodaysApod((updatedApod) => {
       setApod(updatedApod);
       setIsLoading(false);
+      setIsRefreshing(false);
     });
 
     setApod(result.apod);
     setIsLoading(false);
-  }, []);
+    setIsRefreshing(false);
+  }, [apod]);
 
   const value = useMemo(
-    () => ({ apod, isLoading, refreshApod }),
-    [apod, isLoading, refreshApod],
+    () => ({ apod, isLoading, isRefreshing, refreshApod }),
+    [apod, isLoading, isRefreshing, refreshApod],
   );
 
   return (

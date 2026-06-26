@@ -16,3 +16,10 @@ export const NASA_API_KEY = PLACEHOLDER_KEYS.has(configuredKey)
 export const NASA_USING_DEMO_KEY = NASA_API_KEY === NASA_DEMO_API_KEY;
 export const NASA_APOD_URL = 'https://api.nasa.gov/planetary/apod';
 export const NASA_WEBSITE_URL = 'https://apod.nasa.gov/apod/astropix.html';
+
+export const NASA_LOADING_TITLE = 'Connecting to NASA...';
+export const NASA_LOADING_HINT =
+  "Fetching today's Astronomy Picture of the Day. NASA's public API can be slow — please wait a moment.";
+export const NASA_SLOW_HINT =
+  'Still loading from NASA. This can take up to 30 seconds — the app is working, not frozen.';
+export const NASA_REFRESHING_HINT = "Updating today's image from NASA...";

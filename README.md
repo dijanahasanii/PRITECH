@@ -58,6 +58,8 @@ EXPO_PUBLIC_NASA_API_KEY=your_key_here
 
 Without your own key, the app falls back to NASA's `DEMO_KEY`, which is heavily rate-limited and Explore Space may load slowly or fail.
 
+**Note for reviewers:** Explore Space uses NASA's free public API. The first load can take a few seconds (sometimes up to ~30s) while NASA responds — the app shows a loading message during this time. Repeat opens are faster thanks to on-device caching.
+
 Start the app:
 
 ```bash
@@ -84,4 +86,4 @@ src/
 
 ## NASA API
 
-`src/services/nasaService.ts` fetches today's APOD from NASA (with cache), retries on failure, and only shows today's image or video.
+`src/services/nasaService.ts` fetches today's APOD from NASA (with cache), retries on failure, and only shows today's image or video. NASA's API can be slow or briefly unavailable — that is expected behavior from their service, not a bug in the app.

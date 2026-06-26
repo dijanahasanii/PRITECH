@@ -9,9 +9,9 @@ import {
   isTodayApodDate,
 } from '../utils/date';
 
-const FETCH_TIMEOUT_MS = 18_000;
-const RETRY_DELAY_MS = 2_000;
-const MAX_URL_ATTEMPTS = 3;
+const FETCH_TIMEOUT_MS = 12_000;
+const RETRY_DELAY_MS = 1_500;
+const MAX_URL_ATTEMPTS = 2;
 
 const isTransientHttpStatus = (status: number): boolean =>
   status === 503 || status === 502 || status === 504 || status === 429;
@@ -193,15 +193,15 @@ const refreshInBackground = (onUpdated?: (apod: ApodData) => void): void => {
 };
 
 const resolveApod = async (onUpdated?: (apod: ApodData) => void): Promise<ApodData> => {
-  const liveApod = await tryFetchLiveApod();
-  if (liveApod) {
-    return liveApod;
-  }
-
   const cachedApod = await getAcceptableCachedApod();
   if (cachedApod) {
     refreshInBackground(onUpdated);
     return cachedApod;
+  }
+
+  const liveApod = await tryFetchLiveApod();
+  if (liveApod) {
+    return liveApod;
   }
 
   refreshInBackground(onUpdated);

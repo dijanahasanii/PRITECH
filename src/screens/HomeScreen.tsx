@@ -108,7 +108,7 @@ const HomeScreen = () => {
   const navigation = useNavigation<HomeNavigation>();
   const isFocused = useIsFocused();
   const { tasks, isLoading, deleteTask } = useTasks();
-  const { apod, isLoading: apodLoading } = useApod();
+  const { apod, isLoading: apodLoading, isRefreshing: apodRefreshing } = useApod();
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
 
@@ -180,11 +180,12 @@ const HomeScreen = () => {
       <ExploreSpaceCard
         apod={apod}
         isLoading={apodLoading}
+        isRefreshing={apodRefreshing}
         isVideoActive={isFocused}
         onReadMore={handleReadMore}
       />
     ),
-    [apod, apodLoading, handleReadMore, isFocused],
+    [apod, apodLoading, apodRefreshing, handleReadMore, isFocused],
   );
 
   return (
